@@ -1,0 +1,29 @@
+# vim-metarw-etcd
+
+etcd filesystem for vim
+
+## Requirements
+
+- [metarw](https://github.com/kana/vim-metarw)
+- [webapi-vim](https://github.com/mattn/webapi-vim)
+
+## Usage
+
+### List file system on etcd
+
+```
+:edit etcd:
+```
+
+```
+:edit etcd:/path/to/
+```
+
+### Add current buffer on file system
+
+`:write etcd:/foo/bar`
+
+### Update current
+
+`:write`
+
