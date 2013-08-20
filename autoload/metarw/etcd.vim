@@ -30,12 +30,16 @@ endfunction
 
 function! metarw#etcd#read(fakepath)
   let _ = s:parse_incomplete_fakepath(a:fakepath)
-  if _.path == '' || _.path =~ '[\/]$'
-    let result = s:read_list(_)
-  else
-    let result = s:read_content(_)
-  endif
-  return result
+  try
+    if _.path == '' || _.path =~ '[\/]$'
+      let result = s:read_list(_)
+    else
+      let result = s:read_content(_)
+    endif
+    return result
+  catch
+    return ['error', v:exception]
+  endtry
 endfunction
 
 function! metarw#etcd#write(fakepath, line1, line2, append_p)
@@ -43,10 +47,12 @@ function! metarw#etcd#write(fakepath, line1, line2, append_p)
   if _.path == '' || _.path =~ '[\/]$'
     echoerr 'Unexpected a:incomplete_fakepath:' string(a:incomplete_fakepath)
     throw 'metarw:etcd#e1'
-  else
-    let result = s:write_content(_, join(getline(a:line1, a:line2), "\n"))
   endif
-  return result
+  try
+    return s:write_content(_, join(getline(a:line1, a:line2), "\n"))
+  catch
+    return ['error', v:exception]
+  endtry
 endfunction
 
 function! s:parse_incomplete_fakepath(incomplete_fakepath)
@@ -94,22 +100,11 @@ function! s:read_content(_)
 endfunction
 
 function! s:write_content(_, content)
-  try
-    call s:etcd_set(substitute(a:_.path, '\\', '/', 'g'), a:content)
-    return ['done', '']
-  catch
-    return ['error', v:exception]
-  endtry
+  call s:etcd_set(substitute(a:_.path, '\\', '/', 'g'), a:content)
+  return ['done', '']
 endfunction
 
 function! s:read_list(_)
-  try
-    let response = s:etcd_get(substitute(a:_.path, '\\', '/', 'g'))
-    if type(response) == 3
-      return ['browse', s:response_to_result(a:_, response)]
-    endif
-    return ['browse', []]
-  catch
-    return ['error', v:exception]
-  endtry
+  let response = s:etcd_get(substitute(a:_.path, '\\', '/', 'g'))
+  return ['browse', s:response_to_result(a:_, response)]
 endfunction
