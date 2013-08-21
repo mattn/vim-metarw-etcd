@@ -79,15 +79,16 @@ endfunction
 function! s:response_to_result(_, response)
   let result = []
   for item in a:response
-    let e = item['key'][1:]
+    let v = item['key'][1:]
+    let d = substitute(v, '^.*\/', '', 'g')
     if has_key(item, 'dir')
-      let e .= '/'
+      let d .= '/'
     endif
     call add(result, {
-    \    'label': e,
+    \    'label': d,
     \    'fakepath': printf('%s:/%s',
     \                       a:_.scheme,
-    \                       e)
+    \                       v)
     \ })
   endfor
   return result
