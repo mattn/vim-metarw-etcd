@@ -23,7 +23,10 @@ function! metarw#etcd#complete(arglead, cmdline, cursorpos)
   let _ = s:parse_incomplete_fakepath(path)
   let result = s:read_list(_)
   if result[0] == 'browse'
-    return [filter(map(copy(result[1]), 'v:val["fakepath"]'), 'stridx(v:val, a:arglead)==0'), path, '']
+    let head_part = printf('%s:%s',
+    \                      _.scheme,
+    \                      _.path)
+    return [filter(map(copy(result[1]), 'v:val["fakepath"]'), 'stridx(v:val, a:arglead)==0'), head_part, '']
   endif
   return [[], '', '']
 endfunction
@@ -66,9 +69,9 @@ function! s:parse_incomplete_fakepath(incomplete_fakepath)
   let _.scheme = fragments[0]
   let _.path = fragments[1]
   if fragments[1] == ''
-    let _.id = 'root'
+    let _.file = ''
   else
-    let _.id = split(fragments[1], '[\/]', 1)[-1]
+    let _.file = split(fragments[1], '[\/]', 1)[-1]
   endif
   return _
 endfunction
