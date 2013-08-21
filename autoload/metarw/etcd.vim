@@ -21,14 +21,15 @@ function! metarw#etcd#complete(arglead, cmdline, cursorpos)
     let path = a:arglead[:-2]
   endif
   let _ = s:parse_incomplete_fakepath(path)
-  let result = s:read_list(_)
-  if result[0] == 'browse'
+  try
+    let result = s:read_list(_)
     let head_part = printf('%s:%s',
     \                      _.scheme,
     \                      _.path)
     return [filter(map(copy(result[1]), 'v:val["fakepath"]'), 'stridx(v:val, a:arglead)==0'), head_part, '']
-  endif
-  return [[], '', '']
+  catch
+    return [[], '', '']
+  endtry
 endfunction
 
 function! metarw#etcd#read(fakepath)
